@@ -7,6 +7,10 @@ import databaseService from '@/service/database.service';
 import { ConfigBody, ErrorBody, InfoResult } from '@/types';
 import { InvalidPathParamError, NotFoundError } from '@/errors';
 import { InvalidBodyError } from '@/errors/client/InvalidBodyError';
+import upload from '@/utils/uploader';
+
+import CONFIG from '@/config';
+import filesystemService from '@/service/filesystem.service';
 
 function checkPathParam(value: any, name: string): void {
     if (!value || typeof value !== 'string') {
@@ -95,6 +99,28 @@ export default function (): Router {
         const validatedBody = validateErrorBody(body);
 
         await databaseService.postErrorLog(id, validatedBody);
+
+        res.json();
+    }));
+
+    router.post('/:id/errors', asyncHandler(async (req, res) => {
+        const id = req.params.id;
+        const body = req.body;
+
+        checkPathParam(id, 'id');
+        const validatedBody = validateErrorBody(body);
+
+        await databaseService.postErrorLog(id, validatedBody);
+
+        res.json();
+    }));
+
+    router.put('/:id/image', upload(CONFIG.TEMP.PATH, 'image'), asyncHandler(async (req, res) => {
+        const id = req.params.id;
+        checkPathParam(id, 'id');
+
+        const filePath = req.file?.path ?? '';
+        filesystemService.moveToStored(filePath, `${id}/${new Date().toISOString()}.jpg`);
 
         res.json();
     }));
