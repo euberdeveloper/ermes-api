@@ -73,7 +73,7 @@ export default function (): Router {
             paused: config.paused,
             pxFormat: config.pxFormat,
             resolution: config.resolution,
-            timestamp
+            timestamp: '' + timestamp
         };
 
         res.json(result);

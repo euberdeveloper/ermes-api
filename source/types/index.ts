@@ -18,7 +18,7 @@ export interface ErrorLog {
 }
 
 export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution'> & {
-    timestamp: number;
+    timestamp: string;
 };
 
 export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat'>;
