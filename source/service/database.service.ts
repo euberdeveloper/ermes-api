@@ -1,5 +1,5 @@
 import CONFIG from '@/config';
-import { Config, ConfigBody, ErrorCode, ErrorLog } from '@/types';
+import { Config, ConfigBody, ErrorBody, ErrorCode, ErrorLog } from '@/types';
 import { Collection, MongoClient } from 'mongodb';
 
 export class DatabaseService {
@@ -59,9 +59,9 @@ export class DatabaseService {
         await collection.updateOne({ id }, { $set: configBody });
     }
 
-    public async postErrorLog(id: string, error: ErrorCode): Promise<void> {
+    public async postErrorLog(id: string, error: ErrorBody): Promise<void> {
         const collection = await this.getCollection<ErrorLog>('errorLogs');
-        await collection.insertOne({ id, error });
+        await collection.insertOne({ id, error: error.errorCode });
     }
 }
 

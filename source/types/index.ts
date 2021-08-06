@@ -22,3 +22,5 @@ export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution'> & {
 };
 
 export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat'>;
+
+export type ErrorBody = { errorCode: ErrorCode };
