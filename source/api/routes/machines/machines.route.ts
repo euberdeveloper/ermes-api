@@ -1,9 +1,12 @@
 import { Router } from 'express';
+import * as Joi from 'joi';
 
 import asyncHandler from '@/utils/asyncHandler';
-import { InvalidPathParamError, NotFoundError } from '@/errors';
+import logger from '@/utils/logger';
 import databaseService from '@/service/database.service';
-import { Config } from '@/types';
+import { ConfigBody, InfoResult } from '@/types';
+import { InvalidPathParamError, NotFoundError } from '@/errors';
+import { InvalidBodyError } from '@/errors/client/InvalidBodyError';
 
 function checkPathParam(value: any, name: string): void {
     if (!value || typeof value !== 'string') {
@@ -14,9 +17,22 @@ function checkPathParam(value: any, name: string): void {
     }
 }
 
-type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution'> & {
-    timestamp: number;
-};
+function validateConfigBody(body: ConfigBody): ConfigBody {
+    const schema = Joi.object({
+        paused: Joi.bool().required(),
+        resolution: Joi.number().min(0).max(63).required(),
+        pxFormat: Joi.string().required()
+    });
+    
+    const result = schema.validate(body);
+
+    if (result.error) {
+        logger.warning('Validation error', result.error.message);
+        throw new InvalidBodyError(undefined,  result.error.message);
+    }
+
+    return result.value;
+}
 
 export default function (): Router {
     const router = Router();
@@ -44,7 +60,19 @@ export default function (): Router {
         res.json(result);
     }));
 
-    
+    router.post('/:id', asyncHandler(async (req, res) => {
+        const id = req.params.id;
+        const body = req.body;
+
+        checkPathParam(id, 'id');
+        const validatedBody = validateConfigBody(body);
+
+        await databaseService.postConfig(id, validatedBody);
+
+        res.json();
+    }));
+
+
 
     return router;
 }

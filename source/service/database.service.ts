@@ -1,5 +1,5 @@
 import CONFIG from '@/config';
-import { Config, ErrorCode, ErrorLog } from '@/types';
+import { Config, ConfigBody, ErrorCode, ErrorLog } from '@/types';
 import { Collection, MongoClient } from 'mongodb';
 
 export class DatabaseService {
@@ -32,20 +32,31 @@ export class DatabaseService {
     public async getConfig(id: string, initialConnection: boolean): Promise<Config | null> {
         const collection = await this.getCollection<Config>('configs');
 
+        const result = await collection.findOne({ id });
+        if (result) {
+            return result;
+        }
+
         if (initialConnection) {
             const config = this.getDefaultConfig(id);
             await collection.insertOne(config);
             return config;
         }
-        
-        const result = await collection.findOne({ id });
-        return result ?? null;
+
+        return null;
     }
 
-    public async postDefaultConfig(id: string): Promise<Config | null> {
+    public async postConfig(id: string, config: ConfigBody): Promise<void> {
+        const configBody: Partial<Config> = {
+            id,
+            paused: config.paused,
+            pxFormat: config.pxFormat,
+            resolution: config.resolution,
+            lastModified: new Date()
+        };
+
         const collection = await this.getCollection<Config>('configs');
-        const result = await collection.findOne({ id });
-        return result ?? null;
+        await collection.updateOne({ id }, { $set: configBody });
     }
 
     public async postErrorLog(id: string, error: ErrorCode): Promise<void> {

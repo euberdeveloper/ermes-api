@@ -16,3 +16,9 @@ export interface ErrorLog {
     id: string;
     error: ErrorCode;
 }
+
+export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution'> & {
+    timestamp: number;
+};
+
+export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat'>;
