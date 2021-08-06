@@ -8,6 +8,7 @@ export interface Config {
     paused: boolean;
     resolution: number;
     pxFormat: string;
+    hours: string[];
     lastModified: Date;
     lastPinged: Date;
 }
@@ -17,10 +18,10 @@ export interface ErrorLog {
     error: ErrorCode;
 }
 
-export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution'> & {
+export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution' | 'hours'> & {
     timestamp: string;
 };
 
-export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat'>;
+export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat' | 'hours'>;
 
 export type ErrorBody = { errorCode: ErrorCode };

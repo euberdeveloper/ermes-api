@@ -10,6 +10,7 @@ export class DatabaseService {
             paused: false,
             resolution: 2,
             pxFormat: 'PXFORMAT_JPEG',
+            hours: ['12:00'],
             lastModified: now,
             lastPinged: now
         };

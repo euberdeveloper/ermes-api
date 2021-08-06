@@ -25,6 +25,7 @@ function validateConfigBody(body: ConfigBody): ConfigBody {
     const schema = Joi.object({
         paused: Joi.bool().required(),
         resolution: Joi.number().min(0).max(63).required(),
+        hours: Joi.array().items(Joi.string()).required(),
         pxFormat: Joi.string().required()
     });
 
@@ -73,6 +74,7 @@ export default function (): Router {
             paused: config.paused,
             pxFormat: config.pxFormat,
             resolution: config.resolution,
+            hours: config.hours,
             timestamp: '' + timestamp
         };
 
