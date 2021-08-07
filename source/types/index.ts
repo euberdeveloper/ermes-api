@@ -17,6 +17,7 @@ export interface Config {
 export interface ErrorLog {
     id: string;
     error: ErrorCode;
+    timestamp: Date;
 }
 
 export type InfoResult = Pick<Config, 'paused' | 'backup' | 'pxFormat' | 'resolution' | 'hours'> & {

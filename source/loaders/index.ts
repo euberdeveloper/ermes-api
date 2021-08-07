@@ -6,6 +6,7 @@ import loadMorgan from './morgan';
 import loadHelmet from './helmet';
 import loadCors from './cors';
 import loadBodyParser from './bodyParser';
+import loadStatic from './static';
 
 import getErrorHandler from './errorHandler';
 
@@ -38,6 +39,16 @@ export class Loader {
         this.app.use('/api', this.router());
 
         logger.success('Handled routes');
+        logger.hr();
+    }
+
+    public loadStatic(): void {
+        logger.hr();
+        logger.info('Loading Static');
+
+        loadStatic(this.app);
+
+        logger.success('Static loaded');
         logger.hr();
     }
 

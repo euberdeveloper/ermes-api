@@ -7,9 +7,7 @@ import databaseService from '@/service/database.service';
 import { ConfigBody, ErrorBody, InfoResult } from '@/types';
 import { InvalidPathParamError, NotFoundError } from '@/errors';
 import { InvalidBodyError } from '@/errors/client/InvalidBodyError';
-import upload from '@/utils/uploader';
 
-import CONFIG from '@/config';
 import filesystemService from '@/service/filesystem.service';
 
 function checkPathParam(value: any, name: string): void {
@@ -42,7 +40,7 @@ function validateConfigBody(body: ConfigBody): ConfigBody {
 
 function validateErrorBody(body: ErrorBody): ErrorBody {
     const schema = Joi.object({
-        errorCode: Joi.number().integer().required()
+        errorCode: Joi.number().integer().required(),
     });
 
     const result = schema.validate(body);
@@ -88,6 +86,14 @@ export default function (): Router {
         res.json(result);
     }));
 
+    router.get('/:id/errors', asyncHandler(async (req, res) => {
+        const id = req.params.id;
+        checkPathParam(id, 'id');
+
+        const result = await databaseService.getErrors(id);
+        res.json(result);
+    }));
+
     router.get('/:id/frontend', asyncHandler(async (req, res) => {
         const id = req.params.id;
         checkPathParam(id, 'id');
@@ -127,26 +133,25 @@ export default function (): Router {
         res.json();
     }));
 
-    router.post('/:id/errors', asyncHandler(async (req, res) => {
+
+
+    router.post('/:id/image', asyncHandler(async (req, res) => {
         const id = req.params.id;
-        const body = req.body;
-
         checkPathParam(id, 'id');
-        const validatedBody = validateErrorBody(body);
 
-        await databaseService.postErrorLog(id, validatedBody);
-
+        const image = Buffer.from(req.body.image, 'base64');
+        await filesystemService.saveStored(image as any, `${new Date().toISOString()}.jpg`, `${id}`);
+        
         res.json();
     }));
 
-    router.post('/:id/image', upload(CONFIG.TEMP.PATH, 'image'), asyncHandler(async (req, res) => {
+    router.get('/:id/images', asyncHandler(async (req, res) => {
         const id = req.params.id;
         checkPathParam(id, 'id');
 
-        const filePath = req.file?.path ?? '';
-        await filesystemService.moveToStored(filePath, `${id}/${new Date().toISOString()}.jpg`);
-
-        res.json();
+        const paths = filesystemService.listImages(`${id}`).map(el => `/stored/${id}/${el}`);
+        
+        res.json(paths);
     }));
 
 

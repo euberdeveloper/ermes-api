@@ -56,6 +56,12 @@ export class DatabaseService {
         return result ?? null;
     }
 
+    public async getErrors(id: string): Promise<ErrorLog[]> {
+        const collection = await this.getCollection<ErrorLog>('errorLogs');
+        const result = await collection.find({ id }).toArray();
+        return result;
+    }
+
     public async getMachines() {
         const collection = await this.getCollection<Config>('configs');
 
@@ -79,7 +85,7 @@ export class DatabaseService {
     public async postErrorLog(id: string, error: ErrorBody):
      Promise<void> {
         const collection = await this.getCollection<ErrorLog>('errorLogs');
-        await collection.insertOne({ id, error: error.errorCode });
+        await collection.insertOne({ id, error: error.errorCode, timestamp: new Date() });
     }
 }
 
