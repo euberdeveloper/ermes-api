@@ -1,5 +1,5 @@
 import CONFIG from '@/config';
-import { Config, ConfigBody, ErrorBody, ErrorCode, ErrorLog } from '@/types';
+import { Config, ConfigBody, ErrorBody, ErrorLog } from '@/types';
 import { Collection, MongoClient } from 'mongodb';
 
 export class DatabaseService {
@@ -54,6 +54,13 @@ export class DatabaseService {
 
         const result = await collection.findOne({ id });
         return result ?? null;
+    }
+
+    public async getMachines() {
+        const collection = await this.getCollection<Config>('configs');
+
+        const result = await collection.find({}, { projection: { id: true, lastModified: true, lastPinged: true } }).toArray();
+        return result;
     }
 
     public async postConfig(id: string, config: ConfigBody): Promise<void> {

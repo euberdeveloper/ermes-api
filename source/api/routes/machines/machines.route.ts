@@ -58,6 +58,11 @@ function validateErrorBody(body: ErrorBody): ErrorBody {
 export default function (): Router {
     const router = Router();
 
+    router.get('/', asyncHandler(async (req, res) => {
+        const machines = await databaseService.getMachines();
+        res.json(machines);
+    }));
+
     router.get('/:id', asyncHandler(async (req, res) => {
         const id = req.params.id;
         const initialConnection = req.query.initialConnection;
