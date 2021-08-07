@@ -6,6 +6,7 @@ export enum ErrorCode {
 export interface Config {
     id: string;
     paused: boolean;
+    backup: boolean;
     resolution: number;
     pxFormat: string;
     hours: string[];
@@ -18,10 +19,10 @@ export interface ErrorLog {
     error: ErrorCode;
 }
 
-export type InfoResult = Pick<Config, 'paused' | 'pxFormat' | 'resolution' | 'hours'> & {
+export type InfoResult = Pick<Config, 'paused' | 'backup' | 'pxFormat' | 'resolution' | 'hours'> & {
     timestamp: string;
 };
 
-export type ConfigBody = Pick<Config, 'paused' | 'resolution' | 'pxFormat' | 'hours'>;
+export type ConfigBody = Pick<Config, 'paused' | 'backup' | 'resolution' | 'pxFormat' | 'hours'>;
 
 export type ErrorBody = { errorCode: ErrorCode };

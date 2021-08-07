@@ -24,6 +24,7 @@ function checkPathParam(value: any, name: string): void {
 function validateConfigBody(body: ConfigBody): ConfigBody {
     const schema = Joi.object({
         paused: Joi.bool().required(),
+        backup: Joi.bool().required(),
         resolution: Joi.number().min(0).max(63).required(),
         hours: Joi.array().items(Joi.string()).required(),
         pxFormat: Joi.string().required()
@@ -72,6 +73,7 @@ export default function (): Router {
         const timestamp = Date.now();
         const result: InfoResult = {
             paused: config.paused,
+            backup: config.backup,
             pxFormat: config.pxFormat,
             resolution: config.resolution,
             hours: config.hours,
@@ -79,6 +81,21 @@ export default function (): Router {
         };
 
         res.json(result);
+    }));
+
+    router.get('/:id/frontend', asyncHandler(async (req, res) => {
+        const id = req.params.id;
+        checkPathParam(id, 'id');
+
+        const config = await databaseService.getConfigFrontend(id);
+
+        if (!config) {
+            throw new NotFoundError(`Machine with id "${id}" not found`);
+        }
+
+        delete (config as any)._id;
+
+        res.json(config);
     }));
 
     router.post('/:id', asyncHandler(async (req, res) => {
@@ -117,12 +134,12 @@ export default function (): Router {
         res.json();
     }));
 
-    router.put('/:id/image', upload(CONFIG.TEMP.PATH, 'image'), asyncHandler(async (req, res) => {
+    router.post('/:id/image', upload(CONFIG.TEMP.PATH, 'image'), asyncHandler(async (req, res) => {
         const id = req.params.id;
         checkPathParam(id, 'id');
 
         const filePath = req.file?.path ?? '';
-        filesystemService.moveToStored(filePath, `${id}/${new Date().toISOString()}.jpg`);
+        await filesystemService.moveToStored(filePath, `${id}/${new Date().toISOString()}.jpg`);
 
         res.json();
     }));
