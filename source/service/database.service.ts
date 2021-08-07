@@ -8,6 +8,7 @@ export class DatabaseService {
         return {
             id,
             paused: false,
+            backup: false,
             resolution: 2,
             pxFormat: 'PXFORMAT_JPEG',
             hours: ['12:00'],
@@ -35,6 +36,7 @@ export class DatabaseService {
 
         const result = await collection.findOne({ id });
         if (result) {
+            await collection.updateOne({ id }, { $set: { lastPinged: new Date() } });
             return result;
         }
 
@@ -47,12 +49,19 @@ export class DatabaseService {
         return null;
     }
 
+    public async getConfigFrontend(id: string): Promise<Config | null> {
+        const collection = await this.getCollection<Config>('configs');
+
+        const result = await collection.findOne({ id });
+        return result ?? null;
+    }
+
     public async postConfig(id: string, config: ConfigBody): Promise<void> {
         const configBody: Partial<Config> = {
-            id,
             paused: config.paused,
             pxFormat: config.pxFormat,
             resolution: config.resolution,
+            hours: config.hours,
             lastModified: new Date()
         };
 
@@ -60,7 +69,8 @@ export class DatabaseService {
         await collection.updateOne({ id }, { $set: configBody });
     }
 
-    public async postErrorLog(id: string, error: ErrorBody): Promise<void> {
+    public async postErrorLog(id: string, error: ErrorBody):
+     Promise<void> {
         const collection = await this.getCollection<ErrorLog>('errorLogs');
         await collection.insertOne({ id, error: error.errorCode });
     }
